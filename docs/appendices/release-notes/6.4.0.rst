@@ -44,7 +44,13 @@ Version 6.4.0 - Unreleased
 Breaking Changes
 ================
 
-None
+- Changed how type validation is enforced on array parameters in inserts or
+  updates. Previously, type validation was skipped on the first element of an
+  array value but enforced on the rest. The first element was implicitly cast if
+  possible and inserted/updated. With this version, the validation of data type
+  is enforced on each element equally. With this, some queries that previously
+  succeeded now fail, especially array parameters with one element.
+
 
 Deprecations
 ============
