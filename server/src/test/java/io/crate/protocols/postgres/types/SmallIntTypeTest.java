@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -45,12 +46,16 @@ public class SmallIntTypeTest extends BasePGTypeTest<Number> {
     @Test
     public void test_write_byte_value() {
         // byte values are sent as int2; -128 must be sign-extended to 0xff80
-        assertBytesWritten((byte) -128, new byte[]{0, 0, 0, 2, -1, -128});
+        byte[] expected = {0, 0, 0, 2, -1, -128};
+        assertBytesWritten((byte) -128, expected);
+        assertBytesReadBinary(Arrays.copyOfRange(expected, 4, 6), (short) -128);
     }
 
     @Test
     public void test_encode_byte_value_as_text() {
-        assertThat(pgType.encodeAsUTF8Text((byte) 42)).isEqualTo("42".getBytes(StandardCharsets.UTF_8));
+        byte[] textBytes = "42".getBytes(StandardCharsets.UTF_8);
+        assertThat(pgType.encodeAsUTF8Text((byte) 42)).isEqualTo(textBytes);
+        assertBytesReadText(textBytes, (short) 42);
     }
 
     @Test
