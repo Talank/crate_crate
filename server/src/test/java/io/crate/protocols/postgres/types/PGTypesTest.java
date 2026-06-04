@@ -79,6 +79,25 @@ public class PGTypesTest extends ESTestCase {
 
     }
 
+    @Test
+    public void test_byte_is_mapped_to_int2() {
+        assertThat(PGTypes.get(DataTypes.BYTE)).isExactlyInstanceOf(SmallIntType.class);
+        assertThat(PGTypes.get(DataTypes.BYTE).oid()).isEqualTo(SmallIntType.OID);
+        assertThat(PGTypes.get(new ArrayType<>(DataTypes.BYTE)).oid()).isEqualTo(PGArray.INT2_ARRAY.oid());
+    }
+
+    @Test
+    public void test_int2_oid_resolves_to_short_not_byte() {
+        assertThat(PGTypes.fromOID(SmallIntType.OID)).isEqualTo(DataTypes.SHORT);
+        assertThat(PGTypes.fromOID(PGArray.INT2_ARRAY.oid())).isEqualTo(new ArrayType<>(DataTypes.SHORT));
+    }
+
+    @Test
+    public void test_char_oid_is_not_mapped() {
+        assertThat(PGTypes.fromOID(CharType.OID)).isNull();
+        assertThat(PGTypes.fromOID(PGArray.CHAR_ARRAY.oid())).isNull();
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void test_undefined_type_can_stream_non_string_values() {
@@ -117,7 +136,6 @@ public class PGTypesTest extends ESTestCase {
 
     @Test
     public void testPgArray2CrateType() {
-        assertThat(PGTypes.fromOID(PGArray.CHAR_ARRAY.oid())).isExactlyInstanceOf(ArrayType.class);
         assertThat(PGTypes.fromOID(PGArray.INT2_ARRAY.oid())).isExactlyInstanceOf(ArrayType.class);
         assertThat(PGTypes.fromOID(PGArray.INT4_ARRAY.oid())).isExactlyInstanceOf(ArrayType.class);
         assertThat(PGTypes.fromOID(PGArray.INT8_ARRAY.oid())).isExactlyInstanceOf(ArrayType.class);
