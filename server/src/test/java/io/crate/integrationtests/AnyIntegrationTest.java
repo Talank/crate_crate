@@ -26,8 +26,6 @@ import static io.crate.testing.Asserts.assertThat;
 import org.elasticsearch.test.IntegTestCase;
 import org.junit.Test;
 
-import io.crate.testing.UseJdbc;
-
 public class AnyIntegrationTest extends IntegTestCase {
 
     @Test
@@ -68,7 +66,6 @@ public class AnyIntegrationTest extends IntegTestCase {
     }
 
     @Test
-    @UseJdbc(0)
     public void testAnyOnArrayLiteral() throws Exception {
         execute("create table t (b byte, sa array(string), s string) clustered into 1 shards with (number_of_replicas=0)");
         ensureYellow();
@@ -82,51 +79,20 @@ public class AnyIntegrationTest extends IntegTestCase {
 
         execute("select b from t where b = ANY([1, 2, 4]) order by b");
         assertThat(response).hasRowCount(2);
-        assertThat(response.rows()[0][0]).isEqualTo((byte) 1);
-        assertThat(response.rows()[1][0]).isEqualTo((byte) 2);
+        assertThat(response.rows()[0][0]).isEqualTo(byteOrShort(1));
+        assertThat(response.rows()[1][0]).isEqualTo(byteOrShort(2));
 
         execute("select * from t where b != ANY([1, 2, 4]) order by b");
         assertThat(response).hasRowCount(3); // all rows does not contain at least one of the array elements
 
         execute("select b from t where b <= ANY([-1, 0, 1])");
         assertThat(response).hasRowCount(1);
-        assertThat(response.rows()[0][0]).isEqualTo((byte) 1);
+        assertThat(response.rows()[0][0]).isEqualTo(byteOrShort(1));
 
         execute("select b from t where s like ANY(['%ar', 'go%']) order by b DESC");
         assertThat(response).hasRowCount(2);
-        assertThat(response.rows()[0][0]).isEqualTo((byte) 2);
-        assertThat(response.rows()[1][0]).isEqualTo((byte) 1);
-    }
-
-    @Test
-    @UseJdbc(1)
-    public void testAnyOnArrayLiteral_jdbc() throws Exception {
-        execute("create table t (b byte, sa array(string), s string) clustered into 1 shards with (number_of_replicas=0)");
-        ensureYellow();
-        execute("insert into t (b, sa, s) values (1, ['foo', 'bar'], 'goo')," +
-                "(2, ['bar', 'baz'], 'zar')," +
-                "(3, ['funky', 'shizzle'], 'ziffle')");
-        execute("refresh table t");
-
-        execute("select * from t where 'bar' = ANY(sa)");
-        assertThat(response).hasRowCount(2);
-
-        execute("select b from t where b = ANY([1, 2, 4]) order by b");
-        assertThat(response).hasRowCount(2);
-        assertThat(response.rows()[0][0]).isEqualTo((short) 1);
-        assertThat(response.rows()[1][0]).isEqualTo((short) 2);
-
-        execute("select * from t where b != ANY([1, 2, 4]) order by b");
-        assertThat(response).hasRowCount(3); // all rows does not contain at least one of the array elements
-
-        execute("select b from t where b <= ANY([-1, 0, 1])");
-        assertThat(response).hasRowCount(1);
-        assertThat(response.rows()[0][0]).isEqualTo((short) 1);
-
-        execute("select b from t where s like ANY(['%ar', 'go%']) order by b DESC");
-        assertThat(response).hasRowCount(2);
-        assertThat(response.rows()[0][0]).isEqualTo((short) 2);
-        assertThat(response.rows()[1][0]).isEqualTo((short) 1);
+        assertThat(response.rows()[0][0]).isEqualTo(byteOrShort(2));
+        assertThat(response.rows()[1][0]).isEqualTo(byteOrShort(1));
     }
 
     @Test
