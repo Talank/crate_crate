@@ -44,7 +44,10 @@ Version 6.4.0 - Unreleased
 Breaking Changes
 ================
 
-None
+- Changed the PostgreSQL type mapping of the ``byte`` type from ``"char"``
+  (oid 18) to ``int2`` (oid 21). Clients now receive ``byte`` columns as
+  ``int2`` in both text and binary format. The ``"char"`` type is mapped to
+  ``char(1)``.
 
 Deprecations
 ============
