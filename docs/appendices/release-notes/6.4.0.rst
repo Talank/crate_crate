@@ -45,9 +45,13 @@ Breaking Changes
 ================
 
 - Changed the PostgreSQL type mapping of the ``byte`` type from ``"char"``
-  (oid 18) to ``int2`` (oid 21), as ``byte`` is a numeric type while
-  PostgreSQL's ``"char"`` is a single-character string type. Clients now
-  receive ``byte`` columns as ``int2`` in both text and binary format.
+  (oid 18) to ``int2`` (oid 21), and changed ``"char"`` to refer to
+  :ref:`CHARACTER(1) <data-type-character>`. ``byte`` is a numeric type, while
+  PostgreSQL's ``"char"`` is a single-character string type, so the two are no
+  longer the same: clients now receive ``byte`` columns as ``int2`` in both
+  text and binary format, and a column declared as ``"char"`` holds a
+  one-character string rather than a number. Existing ``byte`` columns are
+  unaffected.
 
 Deprecations
 ============

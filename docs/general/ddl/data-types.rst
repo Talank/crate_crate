@@ -3822,7 +3822,7 @@ See the table below for a full list of aliases:
 +-----------------------+---------------------------------+
 | ``REGPROC``           | ``TEXT``                        |
 +-----------------------+---------------------------------+
-| ``"CHAR"``            | ``BYTE``                        |
+| ``"CHAR"``            | ``CHARACTER(1)``                |
 +-----------------------+---------------------------------+
 | ``FLOAT``             | ``REAL``                        |
 +-----------------------+---------------------------------+
@@ -3854,10 +3854,10 @@ Internal-use types
 
 ``"CHAR"``
 ''''''''''
-A one-byte character used internally for enumeration items in the
-:ref:`PostgreSQL system catalogs <postgres-pg_catalog>`.
-
-Specified as a signed integer in the range -128 to 127.
+PostgreSQL's single-byte ``"char"`` type (note the quotes), used in the
+:ref:`PostgreSQL system catalogs <postgres-pg_catalog>` as a simplistic
+enumeration type. In CrateDB it is an alternate spelling of
+:ref:`CHARACTER(1) <data-type-character>` and holds a single-character string.
 
 .. _type-oid:
 

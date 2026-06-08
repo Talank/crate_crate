@@ -396,7 +396,7 @@ public class PostgresITest extends IntegTestCase {
     }
 
     @Test
-    public void test_byte_column_is_mapped_to_int2() throws Exception {
+    public void test_byte_column_mapped_to_int2() throws Exception {
         try (var conn = DriverManager.getConnection(url(RW), properties)) {
             conn.createStatement().executeUpdate(
                 "CREATE TABLE t (b byte) WITH (number_of_replicas = 0)");
@@ -418,6 +418,30 @@ public class PostgresITest extends IntegTestCase {
             assertThatThrownBy(stmt::executeUpdate)
                 .isInstanceOf(PSQLException.class)
                 .hasMessageContaining("Cannot cast value `300` to type `byte`");
+        }
+    }
+
+    @Test
+    public void test_quoted_char_column_round_trips_as_character() throws Exception {
+        try (var conn = DriverManager.getConnection(url(RW), properties)) {
+            conn.createStatement().executeUpdate(
+                "CREATE TABLE t (c \"char\") WITH (number_of_replicas = 0)");
+
+            var stmt = conn.prepareStatement("INSERT INTO t (c) VALUES (?)");
+            stmt.setString(1, "a");
+            stmt.executeUpdate();
+            conn.createStatement().execute("REFRESH TABLE t");
+
+            // "char" is an alias of character(1); columns describe as bpchar
+            var rs = conn.createStatement().executeQuery("SELECT c FROM t");
+            assertThat(rs.getMetaData().getColumnTypeName(1)).isEqualTo("bpchar");
+            assertThat(rs.next()).isTrue();
+            assertThat(rs.getString(1)).isEqualTo("a");
+            assertThat(rs.next()).isFalse();
+
+            var castRs = conn.createStatement().executeQuery("SELECT 'x'::\"char\"");
+            assertThat(castRs.next()).isTrue();
+            assertThat(castRs.getString(1)).isEqualTo("x");
         }
     }
 
