@@ -70,6 +70,7 @@ import io.crate.Constants;
 import io.crate.common.collections.MapBuilder;
 import io.crate.metadata.IndexName;
 import io.crate.metadata.IndexParts;
+import io.crate.metadata.IndexUUID;
 import io.crate.metadata.PartitionName;
 import io.crate.rest.action.HttpErrorStatus;
 import io.crate.server.xcontent.XContentHelper;
@@ -640,7 +641,7 @@ public class IndexMetadata implements Diffable<IndexMetadata> {
             out.writeVLong(mappingVersion);
             out.writeVLong(settingsVersion);
             out.writeByte(state.id);
-            Settings.writeSettingsToStream(out, settings);
+            Settings.writeSettingsToStream(out, settingsForVersion(settings, out.getVersion()));
             out.writeVLongArray(primaryTerms);
             mappings.writeTo(out);
             aliases.writeTo(out);
@@ -747,7 +748,7 @@ public class IndexMetadata implements Diffable<IndexMetadata> {
         out.writeVLong(settingsVersion);
         out.writeInt(routingNumShards);
         out.writeByte(state.id());
-        writeSettingsToStream(out, settings);
+        writeSettingsToStream(out, settingsForVersion(settings, out.getVersion()));
         out.writeVLongArray(primaryTerms);
         if (mapping == null) {
             out.writeVInt(0);
@@ -774,6 +775,14 @@ public class IndexMetadata implements Diffable<IndexMetadata> {
                 out.writeOptionalString(value);
             }
         }
+    }
+
+    private static Settings settingsForVersion(Settings settings, Version version) {
+        // index.name was introduced in 6.1. Older nodes reject it during index settings validation.
+        if (version.before(IndexUUID.INDICES_RESOLVED_BY_UUID_VERSION)) {
+            return settings.filter(key -> SETTING_INDEX_NAME.equals(key) == false);
+        }
+        return settings;
     }
 
     public static Builder builder(String indexUUID) {
