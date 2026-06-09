@@ -69,7 +69,7 @@ class SmallIntType extends PGType<Number> {
 
     @Override
     protected byte[] encodeAsUTF8Text(Number value) {
-        return Short.toString(DataTypes.SHORT.implicitCast(value)).getBytes(StandardCharsets.UTF_8);
+        return Short.toString(value.shortValue()).getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
