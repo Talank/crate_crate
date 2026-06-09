@@ -63,7 +63,7 @@ class SmallIntType extends PGType<Number> {
     @Override
     public int writeAsBinary(ByteBuf buffer, Number value) {
         buffer.writeInt(TYPE_LEN);
-        buffer.writeShort(DataTypes.SHORT.implicitCast(value));
+        buffer.writeShort(value.shortValue());
         return INT32_BYTE_SIZE + TYPE_LEN;
     }
 
