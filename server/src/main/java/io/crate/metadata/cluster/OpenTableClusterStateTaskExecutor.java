@@ -112,7 +112,6 @@ public class OpenTableClusterStateTaskExecutor extends DDLClusterStateTaskExecut
             // We need to check that this index can be upgraded to the current version
             updatedIndexMetadata = metadataIndexUpgradeService.upgradeIndexMetadata(
                 updatedIndexMetadata,
-                null,
                 minIndexCompatibilityVersion,
                 currentState.metadata()
             );
