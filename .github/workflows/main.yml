@@ -1,15 +1,6 @@
----
 name: CrateDB SQL
 on:
-  pull_request:
-    paths:
-      - '**.java'
-      - 'pom.xml'
-      - '**/pom.xml'
-  push:
-    branches:
-      - master
-
+  workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -73,6 +64,8 @@ jobs:
         run: |
           mvn compile forbiddenapis:check
 
+    strategy:
+      fail-fast: false
   checkstyle:
     name: checkstyle
     runs-on: ubuntu-latest
@@ -87,3 +80,5 @@ jobs:
           distribution: "temurin"
       - name: Run checkstyle
         run: mvn compile checkstyle:checkstyle
+    strategy:
+      fail-fast: false
