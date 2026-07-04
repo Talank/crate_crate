@@ -1,15 +1,6 @@
----
 name: CrateDB SQL
 on:
-  pull_request:
-    paths:
-      - '**.java'
-      - 'pom.xml'
-      - '**/pom.xml'
-  push:
-    branches:
-      - master
-
+  workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -58,7 +49,7 @@ jobs:
 
   forbiddenApis:
     name: forbiddenApis
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -73,9 +64,15 @@ jobs:
         run: |
           mvn compile forbiddenapis:check
 
+    strategy:
+      matrix:
+        os: &id001
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+      fail-fast: false
   checkstyle:
     name: checkstyle
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -87,3 +84,7 @@ jobs:
           distribution: "temurin"
       - name: Run checkstyle
         run: mvn compile checkstyle:checkstyle
+    strategy:
+      matrix:
+        os: *id001
+      fail-fast: false
